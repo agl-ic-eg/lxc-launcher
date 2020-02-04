@@ -176,11 +176,12 @@ void Container::launch (ILMControl *ilmc)
   for (auto& storage : m_storages) {
     bool ret = m_lxc->add_device_node(m_lxc, storage.m_src.c_str(), storage.m_dst.c_str());
     if (!ret) {
-      AGL_FATAL("Container[%s] fails to add device [%s,%s]", m_name.c_str(),
+      AGL_DEBUG("Container[%s] fails to add device [%s,%s]", m_name.c_str(),
+                storage.m_src.c_str(), storage.m_dst.c_str());
+    } else {
+      AGL_DEBUG("Container[%s] add device [%s, %s]", m_name.c_str(), 
                 storage.m_src.c_str(), storage.m_dst.c_str());
     }
-    AGL_DEBUG("Container[%s] add device [%s, %s]", m_name.c_str(), 
-              storage.m_src.c_str(), storage.m_dst.c_str());
   }
 
   m_pid = m_lxc->init_pid(m_lxc);
