@@ -123,6 +123,7 @@ public:
   Container(const std::string& name);
 
   void launch(ILMControl *ilmc);
+  void stop(void);
   void put(void);
 
   void add_output(const std::string& name, t_ilm_uint id);

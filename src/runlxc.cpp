@@ -159,11 +159,6 @@ void Container::launch (ILMControl *ilmc)
 
   // parent process
   //   container's daemonized is enabled
-  m_lxc = lxc_container_new(m_name.c_str(), NULL);
-  if (!m_lxc) {
-    AGL_FATAL("Cannot create container [%s]", m_name.c_str());
-  }
-
   if (!m_lxc->is_running(m_lxc)) {
     if (!m_lxc->start(m_lxc, 0, NULL)) {
       AGL_FATAL("Cannot start container [%s]", m_name.c_str());
@@ -191,6 +186,15 @@ void Container::launch (ILMControl *ilmc)
 
   for (auto& output : m_outputs) {
     ilmc->create_layer(output.m_name, output.m_layer_id);
+  }
+}
+
+void Container::stop (void)
+{
+  if (m_lxc) {
+    if (!m_lxc->stop(m_lxc)) {
+      AGL_DEBUG("Container[%s] stop", m_name.c_str());
+    }
   }
 }
 
@@ -355,6 +359,11 @@ void RunLXC::do_loop (volatile sig_atomic_t& e_flag)
   }
 
   if (e_flag) {
+    /* stop all container */
+    for (auto& container : m_containers) {
+        container.stop();
+    }
+
     /* parent killed by someone, so need to kill children */
     AGL_DEBUG("killpg(0, SIGTERM)");
 
