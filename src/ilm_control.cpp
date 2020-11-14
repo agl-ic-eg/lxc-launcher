@@ -177,20 +177,25 @@ ILMControl::ILMControl(RunLXC *runlxc)
 
 void ILMControl::create_layer (const std::string& display, t_ilm_uint id)
 {
-  ILMScreen screen = m_screens[display];
+  auto itr = m_screens.find(display);
+  if ( itr == m_screens.end() ) {
+    AGL_DEBUG("ILMControl: screen=[%s] is not found (ignored)", display.c_str());
+  } else {
+    ILMScreen screen = itr->second;
 
-  t_ilm_layer render_order[1] = { id };
+    t_ilm_layer render_order[1] = { id };
 
-  AGL_DEBUG("ILMControl: create layer=%d to screen=%d,[%s]", id, screen.m_id, display.c_str());
+    AGL_DEBUG("ILMControl: create layer=%d to screen=%d,[%s]", id, screen.m_id, display.c_str());
 
-  ilm_layerCreateWithDimension(&id, screen.m_width, screen.m_height);
-  ilm_layerSetVisibility(id, ILM_TRUE);
-  ilm_displaySetRenderOrder(screen.m_id, render_order, 1);
-  ilm_commitChanges();
+    ilm_layerCreateWithDimension(&id, screen.m_width, screen.m_height);
+    ilm_layerSetVisibility(id, ILM_TRUE);
+    ilm_displaySetRenderOrder(screen.m_id, render_order, 1);
+    ilm_commitChanges();
 
-  if (!m_cb_registered) {
-    ilm_registerNotification(notify_ilm_cb_static, this);
-    m_cb_registered = true;
+    if (!m_cb_registered) {
+      ilm_registerNotification(notify_ilm_cb_static, this);
+      m_cb_registered = true;
+    }
   }
 }
 
